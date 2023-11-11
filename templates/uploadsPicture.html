@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>图片上传</title>
+</head>
+
+<body>
+  <!-- 文件选择元素 -->
+  <input type="file" class="upload">
+  <img src=" " alt="" class="my-img">
+
+  <script src="../static/js/axios.js"></script>
+  <script>
+
+      // 自定义axios 函数 基于XMLHTTPRequest Promise实现,无法传递file，图片等
+		function myaxios(config){
+			return new Promise((resolve,reject)=>{
+				const xhr= new XMLHttpRequest();
+                console.log('nihao111')
+				if(config.params){
+					const params_str = new URLSearchParams(config.params).toString();
+					console.log(params_str)
+					config.url =  config.url + `?${params_str}`;
+				}
+
+                xhr.open(config.method || 'GET', config.url);
+				console.log('nihao')
+				xhr.addEventListener('loadend',function(){
+					if ((xhr.status >= 200 && xhr.status < 300 )|| xhr.status === 304) {
+					  resolve(JSON.parse(xhr.response));
+					} else {
+					  reject(new Error(xhr.response));
+					}
+				});
+				if(config.data){
+                    const data_str = JSON.stringify(config.data);
+                    xhr.setRequestHeader('Content-Type', 'application/json');
+                    xhr.send(data_str);
+				}else{
+					xhr.send()
+				}
+
+			})
+		}
+    /**
+     * 目标：图片上传，显示到网页上
+     *  1. 获取图片文件
+     *  2. 使用 FormData 携带图片文件
+     *  3. 提交到服务器，获取图片url网址使用
+    */
+    // 文件选择元素->change改变事件
+    document.querySelector('.upload').addEventListener('change', e => {
+      // 1. 获取图片文件
+      console.log(e.target.files[0]);
+      // 2. 使用 FormData 携带图片文件
+      const fd = new FormData();
+        console.log(fd);
+      fd.append('img', e.target.files[0]);
+
+      // 3. 提交到服务器，获取图片url网址使用
+      axios({
+        url: '/uploads',
+        method: 'POST',
+        data: fd
+      }).then(result => {
+        console.log(result);
+        // 取出图片url网址，用img标签加载显示
+        console.log( document.querySelector('.my-img').src);
+        document.querySelector('.my-img').src = result.data.url
+      })
+    })
+  </script>
+</body>
+
+</html>
