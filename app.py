@@ -4,7 +4,7 @@ import pymysql
 import os
 from datetime import datetime
 import uuid
-import json
+
 
 app = Flask(__name__)
 # 文件上传保存根路径
